@@ -1,0 +1,13 @@
+{
+  "description": "Ezg invoice-check-wp",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "ezg-wp-invoice",
+  "miniprogramRoot": "./dist"
+}

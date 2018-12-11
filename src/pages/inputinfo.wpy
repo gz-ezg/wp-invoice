@@ -1,0 +1,186 @@
+<style>
+.form{
+    width: 90%;
+    margin: auto;
+    margin-top: 18px;
+}
+
+.form .form-input {
+    background: #fff;
+    padding-bottom: 55px;
+    margin-top: 15px;
+    margin-bottom: 23px;
+    border-radius: 5px;
+    box-shadow: 5px 11px 17px 2px rgba(255,121,83,0.1)
+}
+
+.form .form-input .item{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    border-bottom: 1px solid #e5e5e5;
+    height: 48px;
+    margin: 0 27px;
+}
+
+.form .form-input .item label {
+    width: 56px;
+    flex: none;
+    color: #000;
+    font-size: 13px;
+    text-align: center;
+    height: 32px;
+    line-height: 32px;
+}
+
+.form .form-input .item input,.form .form-input .item picker {
+    border: none;
+    padding: 0 0 0 23px;
+    font-size: 13px;
+    color: #a0a0a0;
+    width: 216px;
+    height: 32px;
+    line-height: 32px;
+}
+
+.form .form-input .item .item-ph {
+    color: #a0a0a0;
+}
+
+.form .form-input .item text {
+    padding: 0 0 5px 23px;
+}
+
+.form button {
+    margin-bottom: 30rpx;
+    border: none;
+}
+
+.form .go-look {
+    background: #CC3300;
+    color: #ffffff;
+    /* box-shadow: 5px 6px 29px 5px rgba(254,124,89,0.53); */
+    font-size: 16px;
+    height: 49px;
+    line-height: 49px;
+    text-align: center;
+}
+
+.form .go-back {
+    background: #ffffff;
+    color: #636363;
+    /* box-shadow: 0px 6px 15px 0px rgba(255,121,84,0.1); */
+    font-size: 16px;
+    height: 49px;
+    line-height: 49px;
+    text-align: center;
+}
+</style>
+
+<template>
+  <view class="section form" >
+        <form @submit="formSubmit" >
+            <view class="form-input">
+                <view class="item" style="padding-bottom:10px">
+                    <radio-group @change="change_type">
+                      <label style="padding-right:10px;font-size:27rpx"><radio value="0" checked/>增值税普通发票</label>
+                      <label style="font-size:27rpx"><radio value="1"/>增值税专用发票</label>
+                    </radio-group>
+                </view>
+                <view class="item">
+                    <label>发票代码</label>
+                    <input name="fpcode" placeholder="请输入10位或12位的发票代码" placeholderClass="item-ph" type="number" value="{{fpcode}}"></input>
+                </view>
+                <view class="item">
+                    <label>发票号码</label>
+                    <input name="fpnum" placeholder="请输入8位发票号码" placeholderClass="item-ph" type="number" value="{{fpnum}}"></input>
+                </view>
+                <view class="item">
+                    <label>开票日期</label>
+                    <picker @change="datechange" end="{{invoice.end}}" mode="date" name="kpdate" start="{{invoice.start}}" value="{{kpdate}}">
+                        {{kpdate||'选择开票日期'}}
+                    </picker>
+                </view>
+
+                <view class="item" wx:if="{{type==0}}">
+                    <label>校验码</label>
+                    <input name="mark" placeholder="请输入校验码后六位" placeholderClass="item-ph" type="digit" value="{{mark}}"></input>
+                </view>
+                <view class="item" wx:else>
+                    <label>发票金额</label>
+                    <input name="mark" placeholder="请输入不含税金额" placeholderClass="item-ph" type="digit" value="{{mark}}"></input>
+                </view>
+            </view>
+            <view>
+                <button class="go-look" formType="submit">查验</button>
+                <button @tap="go_back" class="go-back">返回</button>
+            </view>
+        </form>
+        <van-toast id="van-toast" />
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import invoice from './invoice.wxs'
+import Toast from '../components/vant/toast/toast';
+
+export default class inputInfo extends wepy.component {
+  data = {
+    kpdate: "",
+    fpcode: "",
+    fpnum: "",
+    mark: "",
+    type: "0"
+  }
+  wxs = {
+    invoice: invoice
+  }
+  methods = {
+    clear(e){
+      // console.log("123")
+      this.kpdate = ""
+      this.$apply()
+    },
+    change_type(e){
+      console.log(e.detail.value)
+      this.type = e.detail.value
+      this.$apply()
+    },
+    go_back(){
+      this.$emit("close", 0)
+    },
+    check_type(e){
+      this.fpcode = e.detail.value
+    },
+    datechange(e){
+      // console.log(e.detail.value)
+      this.kpdate = e.detail.value
+    },
+    formSubmit(e){
+      console.log(e.detail.value)
+      let flag = 0
+      for(let x in e.detail.value){
+          if(!e.detail.value[x]){
+            //   console.log("请补全信息！")
+              Toast.fail('请补全信息！');
+              return ;
+          }else{
+              flag ++;
+          }
+          if(flag == 4){
+            console.log("传值")
+            let code
+              if(this.type==0){
+                code = `01,04,${e.detail.value.fpcode},${e.detail.value.fpnum},1111.00,${e.detail.value.kpdate.split("-").join("")},85342965681116${e.detail.value.mark},8EAF,`
+              }else{
+                code = `01,01,${e.detail.value.fpcode},${e.detail.value.fpnum},${e.detail.value.mark},${e.detail.value.kpdate.split("-").join("")},,9335,`
+              }
+            this.$emit("code", code)
+          }
+      }
+    },
+  }
+}
+</script>
+

@@ -1,0 +1,89 @@
+<style lang="less">
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+
+
+export default class extends wepy.app {
+  config = {
+    usingComponents: {
+      "van-toast": "./components/vant/toast/index"
+    },
+    pages: [
+      'pages/scaninfo',
+      'pages/result',
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#fff',
+      navigationBarTitleText: 'WeChat',
+      navigationBarTextStyle: 'black'
+    },
+  }
+
+  globalData = {
+    userInfo: null,
+    encCode: ""
+  }
+
+  constructor () {
+    super()
+    this.use('requestfix')
+  }
+
+  onLaunch() {
+    let _self = this
+    wx.login({
+      success (res) {
+        if (res.code) {
+          console.log(res.code)
+          //发起网络请求
+          wx.request({
+            url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
+            data: {
+              code: res.code
+            },
+            success: function(res){
+              if(res.data.msgCode == 40000){
+                wx.setStorage({
+                  key: "encCode",
+                  data: res.data.data
+                })
+                // _self.globalData.encCode = res.data.data
+              }
+            }
+          })
+        } else {
+          console.log('登录失败！' + res.errMsg)
+        }
+      },
+      fail(err){
+        console.log(err)
+      }
+    })
+  }
+
+  getUserInfo(cb) {
+    const that = this
+    if (this.globalData.userInfo) {
+      return this.globalData.userInfo
+    }
+    wepy.getUserInfo({
+      success (res) {
+        that.globalData.userInfo = res.userInfo
+        cb && cb(res.userInfo)
+      }
+    })
+  }
+}
+</script>

@@ -1,0 +1,32 @@
+var lastYear = getDate().getFullYear;
+var isLeepYear = !(lastYear % (lastYear % 100 ? 4 : 400));
+var lastYear_day = isLeepYear ? 366 : 365;
+var start = getBeforeTime(lastYear_day);
+var end = getBeforeTime(1);
+
+function getBeforeTime(day) {
+    var now = getDate();
+    var targetTime_millionseconds = now.getTime() - 1000 * 60 * 60 * 24 * day;
+    var targetTime = getDate(targetTime_millionseconds);
+    var y = targetTime.getFullYear();
+    var m = targetTime.getMonth() + 1;
+    m = m < 10 ? "0" + m : m;
+    var d = targetTime.getDate();
+    return ([y, m, d].join('-'))
+};
+module.exports = ({
+    start: start,
+    end: end,
+    verify: (function(fplx) {
+        if (fplx && ["04", "10", "11", "14"].indexOf(fplx) === -1) {
+            return (({
+                label: "发票金额",
+                tips: "请输入不含税金额",
+            }))
+        };
+        return (({
+            label: "校验码",
+            tips: "请输入校验码后六位",
+        }))
+    }),
+});

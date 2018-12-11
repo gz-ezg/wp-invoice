@@ -1,0 +1,243 @@
+<style>
+.bill-content {
+    /* box-shadow: 0px 21px 35px 0px rgba(255,121,84,0.7); */
+    background: #f64a42;
+    padding: 10px 0px;
+    padding-bottom: 40%;
+}
+
+.bill-content .section {
+    margin: auto;
+    margin-top:15px;
+    background-color: #ffffff;
+    width: 90%;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #a0a0a0;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 10px 10px;
+    border-radius: 8px
+}
+
+.bill-content .section:last-child {
+    border: none;
+}
+
+.section .item-title {
+    padding: 20rpx 0;
+    border-bottom: 1px dashed #a0a0a0;
+    margin-bottom: 20rpx;
+    font-size: 18px;
+}
+
+.section .item {
+    padding: 3px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.section .item .label {
+    width: 90px;
+    flex: none;
+}
+
+.section .item .item-content {
+    text-align: right;
+}
+
+.section .item .black-content {
+    color: #000000;
+}
+
+.go-back {
+    margin: auto;
+    width: 90%;
+    background: #ffffff;
+    color: #636363;
+    /* box-shadow: 0px 6px 15px 0px rgba(255,121,84,0.1); */
+    font-size: 16px;
+    height: 49px;
+    line-height: 49px;
+    text-align: center;
+}
+</style>
+
+<template>
+  <view>
+    <view class="bill-content">
+      <view class="section base" style="width:90%;margin:auto;">
+        <view class="item">
+          <text class="label">发票状态</text>
+          <text class="item-content" style="color:#CC3300" wx:if="{{invoiceInfo.isCancel=='Y'}}">{{invoiceInfo.status}}</text>
+          <text class="item-content" style="color:green" wx:else>{{invoiceInfo.status}}</text>
+        </view>
+        <view class="item">
+          <text class="label">金额</text>
+          <text class="item-content">¥{{invoiceInfo.noTaxAmount}}</text>
+        </view>
+        <view class="item">
+          <text class="label">税额</text>
+          <text class="item-content">¥{{invoiceInfo.taxAmount}}</text>
+        </view>
+        <view class="item">
+          <text class="label">价税合计</text>
+          <text class="item-content black-content">¥{{invoiceInfo.totalTaxAmount}}</text>
+        </view>
+      </view>
+      <view class="section">
+        <view class="item">
+          <text class="label">发票代码</text>
+          <text class="item-content">{{invoiceInfo.invoiceCode}}</text>
+        </view>
+        <view class="item">
+          <text class="label">发票号码</text>
+          <text class="item-content">{{invoiceInfo.invoiceNum}}</text>
+        </view>
+        <view class="item">
+          <text class="label">开票日期</text>
+          <text class="item-content">{{invoiceInfo.invoiceDate}}</text>
+        </view>
+        <view class="item" wx:if="{{invoiceInfo.checkCode}}">
+          <text class="label">校验码</text>
+          <text class="item-content">{{invoiceInfo.checkCode}}</text>
+        </view>
+      </view>
+      <view class="section buyer">
+        <view class="item">
+          <text class="label">购买方</text>
+          <text class="item-content black-content">{{invoiceInfo.buyerName}}</text>
+        </view>
+        <view class="item">
+          <text class="label">纳税人识别号</text>
+          <text class="item-content black-content">{{invoiceInfo.buyerTaxNum}}</text>
+        </view>
+        <view class="item">
+          <text class="label">地址及电话</text>
+          <text class="item-content">{{invoiceInfo.buyerContact}}</text>
+        </view>
+        <view class="item">
+          <text class="label">开户行及电话</text>
+          <text class="item-content">{{invoiceInfo.buyerAccount}}</text>
+        </view>
+      </view>
+      <view class="section seller">
+        <view class="item">
+          <text class="label">销售方</text>
+          <text class="item-content black-content">{{invoiceInfo.salerName}}</text>
+        </view>
+        <view class="item">
+          <text class="label">纳税人识别号</text>
+          <text class="item-content black-content">{{invoiceInfo.salerTaxNum}}</text>
+        </view>
+        <view class="item">
+          <text class="label">地址及电话</text>
+          <text class="item-content">{{invoiceInfo.salerContact}}</text>
+        </view>
+        <view class="item">
+          <text class="label">开户行及电话</text>
+          <text class="item-content">{{invoiceInfo.salerAccount}}</text>
+        </view>
+      </view>
+      <view style="margin-top:10px">
+        <button @tap="back" class="go-back">返回</button>
+      </view>
+    </view>
+    <van-toast id="van-toast" />
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Toast from '../components/vant/toast/toast';
+import {POST, GET} from '../utils/my_request.js'
+
+export default class result extends wepy.page {
+  config = {
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#f64a42',
+    navigationBarTitleText: '查询结果',
+    navigationBarTextStyle: 'black'
+  }
+  data = {
+    invoiceInfo: {}
+  }
+  methods = {
+    back(){
+      wx.removeStorageSync('code')
+      wx.navigateBack("1")
+    }
+  }
+  get_invoice_detail(e){
+    console.log(e)
+    let url = `customer/company/invoice/queryInvoiceDetail`
+    // let info = `01,10,4400174320,23695013,3260.38,20181113,69392902783836222526,EA76,`
+    let info = e
+    let _self = this
+    let data = {
+      qrCode: info
+    }
+    function success(res){
+      console.log(res)
+        let temp = JSON.parse(res.data.data.replace(/<[^>]+>/g,""))
+        console.log(temp)
+        if(temp.message == '0'){
+          Toast.clear()
+          Toast.fail({
+            duration: 3000,
+            mask: true,
+            message: '此发票信息异常！请确认票面信息！',
+            forbidClick: false
+          });
+          setTimeout(()=>{
+            wx.removeStorageSync('code')
+            wx.navigateBack("1")
+          }, 3000)
+        }else{
+          _self.invoiceInfo = temp.invoice
+          _self.invoiceInfo.status = temp.invoice.isCancel=='N' ? "正常" : "失效"
+          _self.$apply()
+          Toast.clear()
+        }
+    }
+
+    function fail(){
+      Toast.clear()
+      setTimeout(()=>{
+        wx.removeStorageSync('code')
+        wx.navigateBack("1")
+      }, 3000)
+      Toast.fail({
+        duration: 3000,
+        mask: true,
+        message: '查询失败！请稍后重试！',
+        forbidClick: false
+      });
+    }
+
+    function complete(){}
+    let header = {
+      'content-type' : 'application/x-www-form-urlencoded'
+    }
+    POST(url,data, success, fail, complete, header)
+  }
+  onReady(){
+    let _self = this
+    this.invoiceInfo = {}
+    wx.getStorage({
+      key: "code",
+      success: function (res){
+        _self.get_invoice_detail(res.data)
+      },
+      fail: function (err){
+        Toast.clear()
+        wx.navigateBack("1")
+      }
+    })
+    Toast.loading({
+      duration: 0,
+      mask: true,
+      message: '加载中...'
+    });
+  }
+}
+</script>

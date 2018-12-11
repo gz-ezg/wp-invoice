@@ -1,0 +1,149 @@
+<style>
+.scan-content{
+  display: flex;
+  justify-content: center
+}
+.entry .scan-img {
+    width: 500rpx;
+    height: 500rpx;
+    padding-top: 50rpx;
+    margin: auto;
+}
+
+.entry .scan-entry {
+    color: #CC3300;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.entry .input-entry {
+    text-align: center;
+    font-size: 14px;
+    color: #a0a0a0;
+    width: 100%;
+    padding-top: 40px;
+}
+
+.entry .input-entry .input-entry-orange {
+    color: #CC3300;
+}
+
+</style>
+
+
+<template>
+  <view>
+    <view class="scan-content" wx:if="{{scaning == 0}}">
+        <view class="section entry" @tap="open_scan" >
+            <image class="scan-img" src="./image/scan.png"></image>
+            <view class="scan-entry">点击扫描</view>
+            <view class="input-entry" @tap.stop="open_input">
+                <text>扫描失败？</text>
+                <text class="input-entry-orange">试试手动录入!</text>
+                <view style="padding-top:3px"><text>优先推荐使用扫码识别！</text></view>
+            </view>
+        </view>
+    </view>
+    <view wx:else>
+      <inputInfo @close.user="back_scan" @code.user="get_code_before"></inputInfo>
+    </view>
+    <view style="width:90%;margin:auto;margin-top:20px;color:#a0a0a0">
+      <view>* <text style="font-size:14px">本查询结果来源于各地税局系统，查询结果<text style="color:red">不作为</text>鉴别假票、虚开、非法开具发票的法律依据。！</text></view>
+      <view style="font-size:12px;line-height:2em;text-indent:1em">1.<text style="color:red">发票查询最终结果以当地主管税务机关的鉴定为准。</text></view>
+      <view style="font-size:12px;line-height:2em;text-indent:1em">2.当日开具发票最快可于<text style="color:red;font-size:12px">次日</text>进行查验。 </view>
+      <view style="font-size:12px;line-height:2em;text-indent:1em">3.每份发票每天最多可查验<text style="color:red;font-size:14px">5</text>次。</view>
+      <view style="font-size:12px;line-height:2em;text-indent:1em">4.可查验最近<text style="color:red;font-size:14px">1年内</text>增值税发票管理新系统开具的发票。</view>
+      <view style="font-size:12px;line-height:2em;text-indent:1em">5.部分地区税务机关代开发票可能存在滞后情况，敬请谅解。</view>
+    </view>
+    <van-toast id="van-toast" />
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import inputInfo from './inputinfo'
+import Toast from '../components/vant/toast/toast';
+
+export default class ScanInfo extends wepy.page {
+    config = {
+        navigationBarTitleText: "发票校验",
+    }
+    components = {
+      inputInfo: inputInfo,
+    }
+
+    data = {
+      scaning: 0,
+      fpcode: "",
+      codeInfo: ""
+    }
+    methods = {
+        open_scan(){
+            wx.scanCode({
+                success (res) {
+                    console.log(res.result)
+                    console.log(res.result.split(",").length)
+                    console.log(res.result.includes("http"))
+                    if(res.result.split(",").length>5 || res.result.includes("http")){
+                        Toast.loading({
+                            duration: 0,
+                            mask: true,
+                            message: '加载中...'
+                        });
+                    }else{
+                        Toast.fail("对不起，此二维码信息有误！")
+                        return ;
+                    }
+                    //  需要使用本页面下的相对路径
+                    wx.setStorage({
+                        key: "code",
+                        data: res.result,
+                        success: function (){
+                            wx.navigateTo({
+                                url: "/pages/result"
+                            })
+                        },
+                        fail: function(){
+                            console.log("跳转失败！")
+                        }
+                    })
+                }
+            })
+        },
+        open_input(){
+            this.scaning = 1
+        },
+        back_scan(){
+            this.scaning = 0
+        },
+        get_code_before(e){
+            this.get_code(e)
+        }
+    }
+    get_code(e){
+        this.codeInfo = e
+        console.log(e)
+        wx.setStorage({
+            key: "code",
+            data: e,
+            success: function (){
+                wx.navigateTo({
+                    url: "/pages/result"
+                })
+            },
+            fail: function(){
+                console.log("跳转失败！")
+            }
+        })
+    }
+    onHide(){
+        Toast.clear()
+    }
+    onShow(){
+      this.scaning = 0
+      this.$invoke('inputInfo', 'clear', '');
+    }
+}
+</script>
