@@ -29,20 +29,32 @@ function un_login(){
               console.log(res.code)
               //发起网络请求
               wx.request({
-                  url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
+                  // url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
+                  url: 'https://cloud.zgcfo.com/api/user/weChatApplet/getWXEncKey',
                   data: {
                       code: res.code
+                  },
+                  success: function (res){
+                    wx.setStorage({
+                      key: "encCode",
+                      data: res.data.data,
+                      success: function (res){
+                        wx.hideToast()
+                      }
+                    })
                   }
               })
           } else {
               console.log('登录失败！' + res.errMsg)
           }
+      },
+      fail (err){
       }
   })
 }
 
 export function GET(url, data, success, fail=fail, complete=complete, header=header){
-  let baseUrl = devUrl + url
+  let baseUrl = proUrl + url
 
   //  混入校验值
   let config
@@ -72,6 +84,9 @@ export function GET(url, data, success, fail=fail, complete=complete, header=hea
 
   function successObj(res){
       if(res.data.msgCode == 50003){
+          wx.showToast({
+            title: "授权失败，请刷新重试！"
+          })
           un_login()
           return false
       }
@@ -97,7 +112,7 @@ export function GET(url, data, success, fail=fail, complete=complete, header=hea
 }
 
 export function POST(url, data, success, fail=fail, complete=complete, header=header){
-  let baseUrl = devUrl + url
+  let baseUrl = proUrl + url
   //  混入校验值
   let config
   if(!encCode){

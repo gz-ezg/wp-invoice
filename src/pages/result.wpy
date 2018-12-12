@@ -1,22 +1,22 @@
 <style>
 .bill-content {
     /* box-shadow: 0px 21px 35px 0px rgba(255,121,84,0.7); */
-    background: #f64a42;
-    padding: 10px 0px;
+    background: #CC3300;
+    padding: 20rpx 0px;
     padding-bottom: 40%;
 }
 
 .bill-content .section {
     margin: auto;
-    margin-top:15px;
+    margin-top:30rpx;
     background-color: #ffffff;
     width: 90%;
     box-sizing: border-box;
-    font-size: 14px;
+    font-size: 28rpx;
     color: #a0a0a0;
     border-bottom: 1px solid #e5e5e5;
-    padding: 10px 10px;
-    border-radius: 8px
+    padding: 20rpx 20rpx;
+    border-radius: 16rpx
 }
 
 .bill-content .section:last-child {
@@ -27,17 +27,17 @@
     padding: 20rpx 0;
     border-bottom: 1px dashed #a0a0a0;
     margin-bottom: 20rpx;
-    font-size: 18px;
+    font-size: 36rpx;
 }
 
 .section .item {
-    padding: 3px 0;
+    padding: 6rpx 0;
     display: flex;
     justify-content: space-between;
 }
 
 .section .item .label {
-    width: 90px;
+    width: 180rpx;
     flex: none;
 }
 
@@ -54,10 +54,10 @@
     width: 90%;
     background: #ffffff;
     color: #636363;
-    /* box-shadow: 0px 6px 15px 0px rgba(255,121,84,0.1); */
-    font-size: 16px;
-    height: 49px;
-    line-height: 49px;
+    box-shadow: 0px 6px 15px 0px rgba(255,121,84,0.1);
+    font-size: 32rpx;
+    height: 98rpx;
+    line-height: 98rpx;
     text-align: center;
 }
 </style>
@@ -65,26 +65,14 @@
 <template>
   <view>
     <view class="bill-content">
-      <view class="section base" style="width:90%;margin:auto;">
+      <view class="section base" style="width:90%;margin:auto;margin-bottom:30rpx;">
         <view class="item">
           <text class="label">发票状态</text>
           <text class="item-content" style="color:#CC3300" wx:if="{{invoiceInfo.isCancel=='Y'}}">{{invoiceInfo.status}}</text>
           <text class="item-content" style="color:green" wx:else>{{invoiceInfo.status}}</text>
         </view>
-        <view class="item">
-          <text class="label">金额</text>
-          <text class="item-content">¥{{invoiceInfo.noTaxAmount}}</text>
-        </view>
-        <view class="item">
-          <text class="label">税额</text>
-          <text class="item-content">¥{{invoiceInfo.taxAmount}}</text>
-        </view>
-        <view class="item">
-          <text class="label">价税合计</text>
-          <text class="item-content black-content">¥{{invoiceInfo.totalTaxAmount}}</text>
-        </view>
       </view>
-      <view class="section">
+      <view class="section" style="width:90%;margin:auto;">
         <view class="item">
           <text class="label">发票代码</text>
           <text class="item-content">{{invoiceInfo.invoiceCode}}</text>
@@ -100,6 +88,25 @@
         <view class="item" wx:if="{{invoiceInfo.checkCode}}">
           <text class="label">校验码</text>
           <text class="item-content">{{invoiceInfo.checkCode}}</text>
+        </view>
+      </view>
+      <view class="section">
+        <!-- <view class="item">
+          <text class="label">发票状态</text>
+          <text class="item-content" style="color:#CC3300" wx:if="{{invoiceInfo.isCancel=='Y'}}">{{invoiceInfo.status}}</text>
+          <text class="item-content" style="color:green" wx:else>{{invoiceInfo.status}}</text>
+        </view> -->
+        <view class="item">
+          <text class="label">金额</text>
+          <text class="item-content">¥{{invoiceInfo.noTaxAmount}}</text>
+        </view>
+        <view class="item">
+          <text class="label">税额</text>
+          <text class="item-content">¥{{invoiceInfo.taxAmount}}</text>
+        </view>
+        <view class="item">
+          <text class="label">价税合计</text>
+          <text class="item-content black-content">¥{{invoiceInfo.totalTaxAmount}}</text>
         </view>
       </view>
       <view class="section buyer">
@@ -138,7 +145,10 @@
           <text class="item-content">{{invoiceInfo.salerAccount}}</text>
         </view>
       </view>
-      <view style="margin-top:10px">
+      <view style="width:90%;margin:auto;margin-top:20rpx">
+        <view><text style="font-size:24rpx;line-height:1.3em;color:#f0f0f0">* 本查询结果来源于各地税局系统，查询结果不作为鉴别假票、虚开、非法开具发票的法律依据。发票查询最终结果以当地主管税务机关的鉴定为准。</text></view>
+      </view>
+      <view style="margin-top:20rpx">
         <button @tap="back" class="go-back">返回</button>
       </view>
     </view>
@@ -154,12 +164,13 @@ import {POST, GET} from '../utils/my_request.js'
 export default class result extends wepy.page {
   config = {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#f64a42',
+    navigationBarBackgroundColor: '#CC3300',
     navigationBarTitleText: '查询结果',
-    navigationBarTextStyle: 'black'
+    navigationBarTextStyle: '#ffffff'
   }
   data = {
-    invoiceInfo: {}
+    invoiceInfo: {},
+    flag: false
   }
   methods = {
     back(){
@@ -168,7 +179,7 @@ export default class result extends wepy.page {
     }
   }
   get_invoice_detail(e){
-    console.log(e)
+    // console.log(e)
     let url = `customer/company/invoice/queryInvoiceDetail`
     // let info = `01,10,4400174320,23695013,3260.38,20181113,69392902783836222526,EA76,`
     let info = e
@@ -177,9 +188,9 @@ export default class result extends wepy.page {
       qrCode: info
     }
     function success(res){
-      console.log(res)
+        _self.flag = true
         let temp = JSON.parse(res.data.data.replace(/<[^>]+>/g,""))
-        console.log(temp)
+        // console.log(temp)
         if(temp.message == '0'){
           Toast.clear()
           Toast.fail({
@@ -201,6 +212,7 @@ export default class result extends wepy.page {
     }
 
     function fail(){
+      _self.flag = true
       Toast.clear()
       setTimeout(()=>{
         wx.removeStorageSync('code')
@@ -233,11 +245,37 @@ export default class result extends wepy.page {
         wx.navigateBack("1")
       }
     })
+    // wx.showToast({
+    //   title: "加载中...",
+    //   icon: "loading",
+    //   mask: true,
+    //   duration: 10000
+    // })
     Toast.loading({
       duration: 0,
       mask: true,
       message: '加载中...'
     });
+    let second = 10
+    const timer = setInterval(() => {
+      second--;
+      console.log(second)
+      if (!second) {
+        Toast.clear()
+        Toast.fail({
+          duration: 3000,
+          mask: true,
+          message: '网络连接超时',
+        });
+        setTimeout(()=>{
+          wx.navigateBack("1")
+        },1500)
+        clearTimeout(timer)
+      }
+      if(this.flag){
+        clearTimeout(timer)
+      }
+    }, 1000);
   }
 }
 </script>

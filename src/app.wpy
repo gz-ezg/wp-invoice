@@ -20,8 +20,8 @@ export default class extends wepy.app {
       "van-toast": "./components/vant/toast/index"
     },
     pages: [
-      'pages/scaninfo',
       'pages/result',
+      'pages/scaninfo',
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -49,7 +49,7 @@ export default class extends wepy.app {
           console.log(res.code)
           //发起网络请求
           wx.request({
-            url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
+            url: 'https://cloud.zgcfo.com/api/user/weChatApplet/getWXEncKey',
             data: {
               code: res.code
             },
@@ -61,7 +61,12 @@ export default class extends wepy.app {
                 })
                 // _self.globalData.encCode = res.data.data
               }
-            }
+            },
+            // fail: function fail(err){
+            //   wx.showToast({
+            //     title: "登录！"
+            //   })
+            // }
           })
         } else {
           console.log('登录失败！' + res.errMsg)

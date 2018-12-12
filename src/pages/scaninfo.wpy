@@ -49,13 +49,11 @@
     <view wx:else>
       <inputInfo @close.user="back_scan" @code.user="get_code_before"></inputInfo>
     </view>
-    <view style="width:90%;margin:auto;margin-top:20px;color:#a0a0a0">
-      <view>* <text style="font-size:14px">本查询结果来源于各地税局系统，查询结果<text style="color:red">不作为</text>鉴别假票、虚开、非法开具发票的法律依据。！</text></view>
-      <view style="font-size:12px;line-height:2em;text-indent:1em">1.<text style="color:red">发票查询最终结果以当地主管税务机关的鉴定为准。</text></view>
-      <view style="font-size:12px;line-height:2em;text-indent:1em">2.当日开具发票最快可于<text style="color:red;font-size:12px">次日</text>进行查验。 </view>
-      <view style="font-size:12px;line-height:2em;text-indent:1em">3.每份发票每天最多可查验<text style="color:red;font-size:14px">5</text>次。</view>
-      <view style="font-size:12px;line-height:2em;text-indent:1em">4.可查验最近<text style="color:red;font-size:14px">1年内</text>增值税发票管理新系统开具的发票。</view>
-      <view style="font-size:12px;line-height:2em;text-indent:1em">5.部分地区税务机关代开发票可能存在滞后情况，敬请谅解。</view>
+    <view style="width:90%;margin:auto;margin-top:24rpx;color:#a0a0a0;padding-bottom:50rpx">
+      <view style="font-size:24rpx;line-height:1.7em">* 温馨提示：</view>
+      <view style="font-size:24rpx;line-height:2em;text-indent:1em">1.每份发票每天最多可查验<text style="color:red;font-size:14px">5</text>次。</view>
+      <view style="font-size:24rpx;line-height:2em;text-indent:1em">2.可查验最近<text style="color:red;font-size:14px">1年内</text>增值税发票管理新系统开具的发票。</view>
+      <view style="font-size:24rpx;line-height:2em;text-indent:1em">3.部分地区税务机关代开发票可能存在滞后情况，敬请谅解。</view>
     </view>
     <van-toast id="van-toast" />
   </view>
@@ -83,9 +81,9 @@ export default class ScanInfo extends wepy.page {
         open_scan(){
             wx.scanCode({
                 success (res) {
-                    console.log(res.result)
-                    console.log(res.result.split(",").length)
-                    console.log(res.result.includes("http"))
+                    // console.log(res.result)
+                    // console.log(res.result.split(",").length)
+                    // console.log(res.result.includes("http"))
                     if(res.result.split(",").length>5 || res.result.includes("http")){
                         Toast.loading({
                             duration: 0,
@@ -124,7 +122,7 @@ export default class ScanInfo extends wepy.page {
     }
     get_code(e){
         this.codeInfo = e
-        console.log(e)
+        // console.log(e)
         wx.setStorage({
             key: "code",
             data: e,
