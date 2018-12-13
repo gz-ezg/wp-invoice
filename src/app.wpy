@@ -20,8 +20,8 @@ export default class extends wepy.app {
       "van-toast": "./components/vant/toast/index"
     },
     pages: [
-      'pages/result',
       'pages/scaninfo',
+      'pages/result',
     ],
     window: {
       backgroundTextStyle: 'light',

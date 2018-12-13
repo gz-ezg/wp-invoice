@@ -65,12 +65,12 @@
 <template>
   <view>
     <view class="bill-content">
-      <view class="section base" style="width:90%;margin:auto;margin-bottom:30rpx;">
-        <view class="item">
-          <text class="label">发票状态</text>
-          <text class="item-content" style="color:#CC3300" wx:if="{{invoiceInfo.isCancel=='Y'}}">{{invoiceInfo.status}}</text>
-          <text class="item-content" style="color:green" wx:else>{{invoiceInfo.status}}</text>
-        </view>
+      <view class="section base" style="width:90%;margin:auto;margin-bottom:30rpx;padding:0px;background-color:#CC3300;border:1px #cc3300 solid" wx:if="{{invoiceInfo.isCancel}}">
+        <!-- <view class="item"> -->
+          <image src="./image/wxfp.png" mode="aspectFit" style="width:100%;height:160px" wx:if="{{invoiceInfo.isCancel=='Y'}}"></image>
+          <image src="./image/hcfp.png" mode="aspectFit" style="width:100%;height:160px" wx:elif="{{invoiceInfo.isCancel=='N' && invoiceInfo.totalTaxAmount<0}}"></image>
+          <image src="./image/zcfp.png" mode="aspectFit" style="width:100%;height:160px" wx:else></image>
+        <!-- </view> -->
       </view>
       <view class="section" style="width:90%;margin:auto;">
         <view class="item">
