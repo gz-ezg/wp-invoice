@@ -1,7 +1,7 @@
 <style>
 .bill-content {
     /* box-shadow: 0px 21px 35px 0px rgba(255,121,84,0.7); */
-    background: #e63a3f;
+    background: #CC3300;
     padding: 20rpx 0px;
     padding-bottom: 40%;
 }
@@ -65,29 +65,27 @@
 <template>
   <view>
     <view class="bill-content">
-      <view class="section base" style="width:90%;margin:auto;margin-bottom:30rpx;padding:0px;background-color:#e63a3f;border:1px #e63a3f solid">
-        <!-- <view class="item"> -->
-          <!-- <image src="./image/wxfp.png" mode="aspectFit" style="width:100%;height:160px" wx:if="{{invoiceInfo.isCancel=='Y'}}"></image> -->
-          <image src="./image/hcfp.png" mode="aspectFit" style="width:100%;height:160px"></image>
-          <!-- <image src="./image/zcfp.png" mode="aspectFit" style="width:100%;height:160px" wx:else></image> -->
-        <!-- </view> -->
-      </view>
-      <view class="section" style="width:90%;margin:auto;">
-        <view class="item">
-          <text class="label">发票代码</text>
-          <text class="item-content">{{invoiceInfo.invoiceCode}}</text>
-        </view>
-        <view class="item">
-          <text class="label">发票号码</text>
-          <text class="item-content">{{invoiceInfo.invoiceNum}}</text>
-        </view>
-        <view class="item">
-          <text class="label">开票日期</text>
-          <text class="item-content">{{invoiceInfo.invoiceDate}}</text>
-        </view>
-        <view class="item" wx:if="{{invoiceInfo.checkCode}}">
-          <text class="label">校验码</text>
-          <text class="item-content">{{invoiceInfo.checkCode}}</text>
+      <view class="section base" style="width:90%;margin:auto" >
+        <view style="text-align:center;font-size:36rpx;position:absolute;top:50rpx;width:100%;left:0" wx:if="{{invoiceInfo.checkCode}}">增值税普通发票</view>
+        <view style="text-align:center;font-size:36rpx;position:absolute;top:50rpx;width:100%;left:0" wx:else>增值税专用发票</view>
+        <image src="./image/hongchong.png" mode="aspectFit" style="width:100%;height:150px"></image>
+        <view style="position:absolute;top:140rpx;left:60rpx;right:60rpx">
+          <view class="item">
+            <text class="label">发票代码</text>
+            <text class="item-content">{{invoiceInfo.invoiceCode}}</text>
+          </view>
+          <view class="item">
+            <text class="label">发票号码</text>
+            <text class="item-content">{{invoiceInfo.invoiceNum}}</text>
+          </view>
+          <view class="item">
+            <text class="label">开票日期</text>
+            <text class="item-content">{{invoiceInfo.invoiceDate}}</text>
+          </view>
+          <view class="item" wx:if="{{invoiceInfo.checkCode}}">
+            <text class="label">校验码</text>
+            <text class="item-content">{{invoiceInfo.checkCode}}</text>
+          </view>
         </view>
       </view>
       <view class="section">
@@ -164,7 +162,7 @@ import {POST, GET} from '../utils/my_request.js'
 export default class result extends wepy.page {
   config = {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#e63a3f',
+    navigationBarBackgroundColor: '#CC3300',
     navigationBarTitleText: '查询结果',
     navigationBarTextStyle: '#ffffff'
   }

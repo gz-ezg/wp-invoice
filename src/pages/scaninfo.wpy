@@ -47,7 +47,7 @@
         </view>
     </view>
     <view wx:else>
-      <inputInfo @close.user="back_scan" @code.user="get_invoice_detail"></inputInfo>
+      <inputInfo @close.user="back_scan" @code.user="get_code_before"></inputInfo>
     </view>
     <view style="width:90%;margin:auto;margin-top:24rpx;color:#a0a0a0;padding-bottom:50rpx">
       <view style="font-size:24rpx;line-height:1.7em">* 温馨提示：</view>
@@ -88,7 +88,8 @@ export default class ScanInfo extends wepy.page {
                     // console.log(res.result)
                     // console.log(res.result.split(",").length)
                     // console.log(res.result.includes("http"))
-                    if(res.result.split(",").length>5 || res.result.includes("http")){
+                    // if(res.result.split(",").length>5 || res.result.includes("http")){
+                    if(res.result.split(",").length>5){
                         Toast.loading({
                             duration: 0,
                             mask: true,
@@ -123,7 +124,7 @@ export default class ScanInfo extends wepy.page {
             this.scaning = 0
         },
         get_code_before(e){
-            this.get_code(e)
+            this.get_invoice_detail(e)
         }
     }
     // get_code(e){
@@ -145,6 +146,11 @@ export default class ScanInfo extends wepy.page {
       let url = `customer/company/invoice/queryInvoiceDetail`
       let info = e
       let _self = this
+      Toast.loading({
+        duration: 0,
+        mask: true,
+        message: '加载中...'
+      });
       let data = {
         qrCode: info
       }
@@ -173,6 +179,8 @@ export default class ScanInfo extends wepy.page {
                 key: "info",
                 data: temp.invoice,
                 success: function (){
+                  console.log(temp.invoice)
+                  console.log(temp.invoice.isCancel)
                   if(temp.invoice.isCancel == 'Y'){
                     wx.navigateTo({
                       url: "/pages/error"
@@ -223,6 +231,7 @@ export default class ScanInfo extends wepy.page {
     onShow(){
       this.scaning = 0
       this.$invoke('inputInfo', 'clear', '');
+      // wx.removeStorageSync('info')
     }
 }
 </script>
