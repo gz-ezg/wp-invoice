@@ -1,7 +1,7 @@
 <style>
 .bill-content {
     /* box-shadow: 0px 21px 35px 0px rgba(255,121,84,0.7); */
-    background: #CC3300;
+    background: #ffcc00;
     padding: 20rpx 0px;
     padding-bottom: 40%;
 }
@@ -65,11 +65,11 @@
 <template>
   <view>
     <view class="bill-content">
-      <view class="section base" style="width:90%;margin:auto;margin-bottom:30rpx;padding:0px;background-color:#CC3300;border:1px #cc3300 solid" wx:if="{{invoiceInfo.isCancel}}">
+      <view class="section base" style="width:90%;margin:auto;margin-bottom:30rpx;padding:0px;background-color:#ffcc00;border:1px #ffcc00 solid">
         <!-- <view class="item"> -->
-          <image src="./image/wxfp.png" mode="aspectFit" style="width:100%;height:160px" wx:if="{{invoiceInfo.isCancel=='Y'}}"></image>
-          <image src="./image/hcfp.png" mode="aspectFit" style="width:100%;height:160px" wx:elif="{{invoiceInfo.isCancel=='N' && invoiceInfo.totalTaxAmount<0}}"></image>
-          <image src="./image/zcfp.png" mode="aspectFit" style="width:100%;height:160px" wx:else></image>
+          <image src="./image/wxfp.png" mode="aspectFit" style="width:100%;height:160px"></image>
+          <!-- <image src="./image/hcfp.png" mode="aspectFit" style="width:100%;height:160px"></image> -->
+          <!-- <image src="./image/zcfp.png" mode="aspectFit" style="width:100%;height:160px"></image> -->
         <!-- </view> -->
       </view>
       <view class="section" style="width:90%;margin:auto;">
@@ -164,7 +164,7 @@ import {POST, GET} from '../utils/my_request.js'
 export default class result extends wepy.page {
   config = {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#CC3300',
+    navigationBarBackgroundColor: '#ffcc00',
     navigationBarTitleText: '查询结果',
     navigationBarTextStyle: '#ffffff'
   }
@@ -178,104 +178,20 @@ export default class result extends wepy.page {
       wx.navigateBack("1")
     }
   }
-  get_invoice_detail(e){
-    // console.log(e)
-    let url = `customer/company/invoice/queryInvoiceDetail`
-    // let info = `01,10,4400174320,23695013,3260.38,20181113,69392902783836222526,EA76,`
-    let info = e
-    let _self = this
-    let data = {
-      qrCode: info
-    }
-    function success(res){
-        _self.flag = true
-        let temp = JSON.parse(res.data.data.replace(/<[^>]+>/g,""))
-        // console.log(temp)
-        if(temp.message == '0'){
-          Toast.clear()
-          Toast.fail({
-            duration: 3000,
-            mask: true,
-            message: '此发票信息异常！请确认票面信息！',
-            forbidClick: false
-          });
-          setTimeout(()=>{
-            wx.removeStorageSync('code')
-            wx.navigateBack("1")
-          }, 3000)
-        }else{
-          _self.invoiceInfo = temp.invoice
-          _self.invoiceInfo.status = temp.invoice.isCancel=='N' ? "正常" : "失效"
-          _self.$apply()
-          Toast.clear()
-        }
-    }
-
-    function fail(){
-      _self.flag = true
-      Toast.clear()
-      setTimeout(()=>{
-        wx.removeStorageSync('code')
-        wx.navigateBack("1")
-      }, 3000)
-      Toast.fail({
-        duration: 3000,
-        mask: true,
-        message: '查询失败！请稍后重试！',
-        forbidClick: false
-      });
-    }
-
-    function complete(){}
-    let header = {
-      'content-type' : 'application/x-www-form-urlencoded'
-    }
-    POST(url,data, success, fail, complete, header)
-  }
   onReady(){
     let _self = this
     this.invoiceInfo = {}
     wx.getStorage({
-      key: "code",
+      key: "info",
       success: function (res){
-        _self.get_invoice_detail(res.data)
+        _self.invoiceInfo = res.data
+        _self.$apply()
       },
       fail: function (err){
         Toast.clear()
         wx.navigateBack("1")
       }
     })
-    // wx.showToast({
-    //   title: "加载中...",
-    //   icon: "loading",
-    //   mask: true,
-    //   duration: 10000
-    // })
-    Toast.loading({
-      duration: 0,
-      mask: true,
-      message: '加载中...'
-    });
-    let second = 10
-    const timer = setInterval(() => {
-      second--;
-      console.log(second)
-      if (!second) {
-        Toast.clear()
-        Toast.fail({
-          duration: 3000,
-          mask: true,
-          message: '网络连接超时',
-        });
-        setTimeout(()=>{
-          wx.navigateBack("1")
-        },1500)
-        clearTimeout(timer)
-      }
-      if(this.flag){
-        clearTimeout(timer)
-      }
-    }, 1000);
   }
 }
 </script>

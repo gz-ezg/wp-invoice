@@ -47,13 +47,15 @@
         </view>
     </view>
     <view wx:else>
-      <inputInfo @close.user="back_scan" @code.user="get_code_before"></inputInfo>
+      <inputInfo @close.user="back_scan" @code.user="get_invoice_detail"></inputInfo>
     </view>
     <view style="width:90%;margin:auto;margin-top:24rpx;color:#a0a0a0;padding-bottom:50rpx">
       <view style="font-size:24rpx;line-height:1.7em">* 温馨提示：</view>
       <view style="font-size:24rpx;line-height:2em;text-indent:1em">1.每份发票每天最多可查验<text style="color:red;font-size:14px">5</text>次。</view>
       <view style="font-size:24rpx;line-height:2em;text-indent:1em">2.可查验最近<text style="color:red;font-size:14px">1年内</text>增值税发票管理新系统开具的发票。</view>
       <view style="font-size:24rpx;line-height:2em;text-indent:1em">3.部分地区税务机关代开发票可能存在滞后情况，敬请谅解。</view>
+    </view>
+    <view>
     </view>
     <van-toast id="van-toast" />
   </view>
@@ -63,6 +65,7 @@
 import wepy from 'wepy'
 import inputInfo from './inputinfo'
 import Toast from '../components/vant/toast/toast';
+import {POST, GET} from '../utils/my_request.js'
 
 export default class ScanInfo extends wepy.page {
     config = {
@@ -79,6 +82,7 @@ export default class ScanInfo extends wepy.page {
     }
     methods = {
         open_scan(){
+          let _self = this
             wx.scanCode({
                 success (res) {
                     // console.log(res.result)
@@ -94,19 +98,21 @@ export default class ScanInfo extends wepy.page {
                         Toast.fail("对不起，此二维码信息有误！")
                         return ;
                     }
+
+                    _self.get_invoice_detail(res.result)
                     //  需要使用本页面下的相对路径
-                    wx.setStorage({
-                        key: "code",
-                        data: res.result,
-                        success: function (){
-                            wx.navigateTo({
-                                url: "/pages/result"
-                            })
-                        },
-                        fail: function(){
-                            console.log("跳转失败！")
-                        }
-                    })
+                    // wx.setStorage({
+                    //     key: "code",
+                    //     data: res.result,
+                    //     success: function (){
+                    //         wx.navigateTo({
+                    //             url: "/pages/result"
+                    //         })
+                    //     },
+                    //     fail: function(){
+                    //         console.log("跳转失败！")
+                    //     }
+                    // })
                 }
             })
         },
@@ -120,21 +126,96 @@ export default class ScanInfo extends wepy.page {
             this.get_code(e)
         }
     }
-    get_code(e){
-        this.codeInfo = e
-        // console.log(e)
-        wx.setStorage({
-            key: "code",
-            data: e,
-            success: function (){
-                wx.navigateTo({
-                    url: "/pages/result"
-                })
-            },
-            fail: function(){
-                console.log("跳转失败！")
-            }
-        })
+    // get_code(e){
+    //     this.codeInfo = e
+    //     wx.setStorage({
+    //         key: "code",
+    //         data: e,
+    //         success: function (){
+    //             wx.navigateTo({
+    //                 url: "/pages/result"
+    //             })
+    //         },
+    //         fail: function(){
+    //             console.log("跳转失败！")
+    //         }
+    //     })
+    // }
+    get_invoice_detail(e){
+      let url = `customer/company/invoice/queryInvoiceDetail`
+      let info = e
+      let _self = this
+      let data = {
+        qrCode: info
+      }
+      function success(res){
+          _self.flag = true
+          let temp = JSON.parse(res.data.data.replace(/<[^>]+>/g,""))
+          // console.log(temp)
+          if(temp.message == '0'){
+            Toast.clear()
+            Toast.fail({
+              duration: 3000,
+              mask: true,
+              message: '此发票信息异常！请确认票面信息！',
+              forbidClick: false
+            });
+            // setTimeout(()=>{
+            //   wx.removeStorageSync('code')
+            //   wx.navigateBack("1")
+            // }, 3000)
+          }else{
+            _self.invoiceInfo = temp.invoice
+            _self.invoiceInfo.status = temp.invoice.isCancel=='N' ? "正常" : "失效"
+            _self.$apply()
+            Toast.clear()
+            wx.setStorage({
+                key: "info",
+                data: temp.invoice,
+                success: function (){
+                  if(temp.invoice.isCancel == 'Y'){
+                    wx.navigateTo({
+                      url: "/pages/error"
+                    })
+                  }else{
+                    if(temp.invoice.totalTaxAmount<0){
+                      wx.navigateTo({
+                        url: "/pages/hongchong"
+                      })
+                    }else{
+                      wx.navigateTo({
+                        url: "/pages/normal"
+                      })
+                    }
+                  }
+                },
+                fail: function(){
+                    console.log("查询失败！")
+                }
+            })
+          }
+      }
+
+      function fail(){
+        _self.flag = true
+        Toast.clear()
+        setTimeout(()=>{
+          wx.removeStorageSync('code')
+          wx.navigateBack("1")
+        }, 3000)
+        Toast.fail({
+          duration: 3000,
+          mask: true,
+          message: '查询失败！请稍后重试！',
+          forbidClick: false
+        });
+      }
+
+      function complete(){}
+      let header = {
+        'content-type' : 'application/x-www-form-urlencoded'
+      }
+      POST(url,data, success, fail, complete, header)
     }
     onHide(){
         Toast.clear()

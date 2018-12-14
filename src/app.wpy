@@ -21,7 +21,9 @@ export default class extends wepy.app {
     },
     pages: [
       'pages/scaninfo',
-      'pages/result',
+      'pages/error',
+      'pages/hongchong',
+      'pages/normal',
     ],
     window: {
       backgroundTextStyle: 'light',
