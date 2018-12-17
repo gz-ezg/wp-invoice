@@ -29,8 +29,8 @@ function un_login(){
               console.log(res.code)
               //发起网络请求
               wx.request({
-                  // url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
-                  url: 'https://cloud.zgcfo.com/api/user/weChatApplet/getWXEncKey',
+                  url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
+                  // url: 'https://cloud.zgcfo.com/api/user/weChatApplet/getWXEncKey',
                   data: {
                       code: res.code
                   },
@@ -54,7 +54,7 @@ function un_login(){
 }
 
 export function GET(url, data, success, fail=fail, complete=complete, header=header){
-  let baseUrl = proUrl + url
+  let baseUrl = devUrl + url
 
   //  混入校验值
   let config
@@ -112,7 +112,7 @@ export function GET(url, data, success, fail=fail, complete=complete, header=hea
 }
 
 export function POST(url, data, success, fail=fail, complete=complete, header=header){
-  let baseUrl = proUrl + url
+  let baseUrl = devUrl + url
   //  混入校验值
   let config
   if(!encCode){

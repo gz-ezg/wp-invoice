@@ -1,0 +1,154 @@
+<style>
+.bill-content {
+    /* box-shadow: 0px 21px 35px 0px rgba(255,121,84,0.7); */
+    background: #CC3300;
+    padding: 20rpx 0px;
+    padding-bottom: 40%;
+}
+
+.bill-content .section {
+    margin: auto;
+    margin-top:30rpx;
+    background-color: #ffffff;
+    width: 90%;
+    box-sizing: border-box;
+    font-size: 28rpx;
+    color: #a0a0a0;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 20rpx 20rpx;
+    border-radius: 16rpx
+}
+
+.bill-content .section:last-child {
+    border: none;
+}
+
+.section .item-title {
+    padding: 20rpx 0;
+    border-bottom: 1px dashed #a0a0a0;
+    margin-bottom: 20rpx;
+    font-size: 36rpx;
+}
+
+.section .item {
+    padding: 6rpx 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.section .item .label {
+    width: 180rpx;
+    flex: none;
+}
+
+.section .item .item-content {
+    text-align: right;
+}
+
+.section .item .black-content {
+    color: #000000;
+}
+
+.go-back {
+    margin: auto;
+    width: 90%;
+    background: #ffffff;
+    color: #636363;
+    box-shadow: 0px 6px 15px 0px rgba(255,121,84,0.1);
+    font-size: 32rpx;
+    height: 98rpx;
+    line-height: 98rpx;
+    text-align: center;
+}
+</style>
+
+<template>
+  <view class="bill-content">
+    <view class="section base" style="width:90%;margin:auto" >
+        <view style="text-align:center;font-size:36rpx;position:absolute;top:50rpx;width:100%;left:0" >广东省国家税务局通用机打发票</view>
+        <view style="text-align:center;font-size:36rpx;position:absolute;top:50rpx;width:100%;left:0"></view>
+          <image src="./image/normal.png" mode="aspectFit" style="width:100%;height:150px" wx:if="{{invoiceInfo.status=='正常'}}"></image>
+          <image src="./image/error.png" mode="aspectFit" style="width:100%;height:150px" wx:else></image>
+        <view style="position:absolute;top:140rpx;left:60rpx;right:60rpx">
+          <view class="item">
+            <text class="label">发票代码</text>
+            <text class="item-content">{{invoiceInfo.invoiceCode}}</text>
+          </view>
+          <view class="item">
+            <text class="label">发票号码</text>
+            <text class="item-content">{{invoiceInfo.invoiceNum}}</text>
+          </view>
+          <view class="item">
+            <text class="label">开票日期</text>
+            <text class="item-content">{{invoiceInfo.invoiceDate}}</text>
+          </view>
+          <view class="item">
+            <text class="label">金额</text>
+            <text class="item-content">¥{{invoiceInfo.noTaxAmount}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="section buyer">
+        <view class="item">
+          <text class="label">付款方</text>
+          <text class="item-content black-content">{{invoiceInfo.buyerName}}</text>
+        </view>
+        <view class="item">
+          <text class="label">付款方证件号</text>
+          <text class="item-content black-content">{{invoiceInfo.buyerTaxNum}}</text>
+        </view>
+      </view>
+      <view class="section seller">
+        <view class="item">
+          <text class="label">收款方</text>
+          <text class="item-content black-content">{{invoiceInfo.salerName}}</text>
+        </view>
+        <view class="item">
+          <text class="label">收款方证件号</text>
+          <text class="item-content black-content">{{invoiceInfo.salerTaxNum}}</text>
+        </view>
+      </view>
+      <view style="width:90%;margin:auto;margin-top:20rpx">
+        <view><text style="font-size:24rpx;line-height:1.3em;color:#f0f0f0">* 本查询结果来源于各地税局系统，查询结果不作为鉴别假票、虚开、非法开具发票的法律依据。发票查询最终结果以当地主管税务机关的鉴定为准。</text></view>
+      </view>
+      <view style="margin-top:20rpx">
+        <button @tap="back" class="go-back">返回</button>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class dishui extends wepy.page {
+  config = {
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#CC3300',
+    navigationBarTitleText: '查询结果',
+    navigationBarTextStyle: '#ffffff'
+  }
+  data={
+    invoiceInfo: ""
+  }
+  methods={
+    back(){
+      wx.removeStorageSync('info')
+      wx.navigateBack("1")
+    }
+  }
+  onReady(){
+    let _self = this
+    this.invoiceInfo = ""
+    wx.getStorage({
+      key: "dishui",
+      success: function (res){
+        _self.invoiceInfo = res.data
+        _self.$apply()
+      },
+      fail: function (err){
+        wx.navigateBack("1")
+      }
+    })
+  }
+}
+</script>

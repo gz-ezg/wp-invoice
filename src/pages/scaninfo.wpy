@@ -52,7 +52,7 @@
     <view style="width:90%;margin:auto;margin-top:24rpx;color:#a0a0a0;padding-bottom:50rpx">
       <view style="font-size:24rpx;line-height:1.7em">* 温馨提示：</view>
       <view style="font-size:24rpx;line-height:2em;text-indent:1em">1.每份发票每天最多可查验<text style="color:red;font-size:14px">5</text>次。</view>
-      <view style="font-size:24rpx;line-height:2em;text-indent:1em">2.可查验最近<text style="color:red;font-size:14px">1年内</text>增值税发票管理新系统开具的发票。</view>
+      <view style="font-size:24rpx;line-height:2em;text-indent:1em">2.可查验最近<text style="color:red;font-size:14px">1年内</text>增值税发票管理新系统开具的发票及广东省国家税务局通用机打发票。</view>
       <view style="font-size:24rpx;line-height:2em;text-indent:1em">3.部分地区税务机关代开发票可能存在滞后情况，敬请谅解。</view>
     </view>
     <view>
@@ -78,42 +78,34 @@ export default class ScanInfo extends wepy.page {
     data = {
       scaning: 0,
       fpcode: "",
-      codeInfo: ""
+      codeInfo: "",
     }
     methods = {
         open_scan(){
           let _self = this
             wx.scanCode({
                 success (res) {
-                    // console.log(res.result)
-                    // console.log(res.result.split(",").length)
-                    // console.log(res.result.includes("http"))
-                    // if(res.result.split(",").length>5 || res.result.includes("http")){
-                    if(res.result.split(",").length>5){
-                        Toast.loading({
-                            duration: 0,
-                            mask: true,
-                            message: '加载中...'
-                        });
+                  Toast.loading({
+                    duration: 0,
+                    mask: true,
+                    message: '加载中...'
+                  });
+                    if(res.result.split(",").length>5 || res.result.includes("https://invoice.etax-gd.gov.cn")){
+                        if(res.result.includes("https://invoice.etax-gd.gov.cn")){
+                          _self.get_dishui_detail(res.result)
+                          return ;
+                        }
+                        if(res.result.split(",").length>5){
+                          _self.get_invoice_detail(res.result)
+                          return ;
+                        }
+                        console.log(res.result.includes("https://invoice.etax-gd.gov.cn"))
+
                     }else{
-                        Toast.fail("对不起，此二维码信息有误！")
+                      Toast.fail("对不起，此二维码信息有误！")
                         return ;
                     }
 
-                    _self.get_invoice_detail(res.result)
-                    //  需要使用本页面下的相对路径
-                    // wx.setStorage({
-                    //     key: "code",
-                    //     data: res.result,
-                    //     success: function (){
-                    //         wx.navigateTo({
-                    //             url: "/pages/result"
-                    //         })
-                    //     },
-                    //     fail: function(){
-                    //         console.log("跳转失败！")
-                    //     }
-                    // })
                 }
             })
         },
@@ -127,37 +119,61 @@ export default class ScanInfo extends wepy.page {
             this.get_invoice_detail(e)
         }
     }
-    // get_code(e){
-    //     this.codeInfo = e
-    //     wx.setStorage({
-    //         key: "code",
-    //         data: e,
-    //         success: function (){
-    //             wx.navigateTo({
-    //                 url: "/pages/result"
-    //             })
-    //         },
-    //         fail: function(){
-    //             console.log("跳转失败！")
-    //         }
-    //     })
-    // }
+    get_dishui_detail(e){
+      let url = `customer/company/invoice/localTax`
+      let data = {
+        localTaxUrl: e
+      }
+
+      function success(res){
+        console.log(res.data.data["付款方名称："])
+        let tempRes = res.data.data
+        let temp = {
+          invoiceCode: tempRes["发票代码："],
+          invoiceNum: tempRes["发票号码："],
+          invoiceDate: tempRes["开票日期："],
+          noTaxAmount: tempRes["合计金额："],
+          buyerName: tempRes["付款方名称："],
+          buyerTaxNum: tempRes["付款方证件号："],
+          salerName: tempRes["收款方名称："],
+          salerTaxNum: tempRes["收款方证件号："],
+          status: tempRes["发票状态："],
+        }
+        Toast.clear()
+        wx.setStorage({
+          key: "dishui",
+          data: temp,
+          success: function (){
+            Toast.clear()
+            wx.navigateTo({
+              url: "/pages/dishui"
+            })
+          }
+        })
+      }
+
+      function fail(err) {
+        Toast.clear()
+        Toast.fail({
+          duration: 3000,
+          mask: true,
+          message: '查询失败！请稍后重试！',
+          forbidClick: false
+        });
+      }
+
+      GET(url, data, success, fail)
+    }
     get_invoice_detail(e){
       let url = `customer/company/invoice/queryInvoiceDetail`
       let info = e
       let _self = this
-      Toast.loading({
-        duration: 0,
-        mask: true,
-        message: '加载中...'
-      });
       let data = {
         qrCode: info
       }
       function success(res){
           _self.flag = true
           let temp = JSON.parse(res.data.data.replace(/<[^>]+>/g,""))
-          // console.log(temp)
           if(temp.message == '0'){
             Toast.clear()
             Toast.fail({
@@ -166,10 +182,6 @@ export default class ScanInfo extends wepy.page {
               message: '此发票信息异常！请确认票面信息！',
               forbidClick: false
             });
-            // setTimeout(()=>{
-            //   wx.removeStorageSync('code')
-            //   wx.navigateBack("1")
-            // }, 3000)
           }else{
             _self.invoiceInfo = temp.invoice
             _self.invoiceInfo.status = temp.invoice.isCancel=='N' ? "正常" : "失效"
@@ -205,12 +217,7 @@ export default class ScanInfo extends wepy.page {
       }
 
       function fail(){
-        _self.flag = true
         Toast.clear()
-        setTimeout(()=>{
-          wx.removeStorageSync('code')
-          wx.navigateBack("1")
-        }, 3000)
         Toast.fail({
           duration: 3000,
           mask: true,
