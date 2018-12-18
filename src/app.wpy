@@ -52,8 +52,8 @@ export default class extends wepy.app {
           console.log(res.code)
           //发起网络请求
           wx.request({
-            // url: 'https://cloud.zgcfo.com/api/user/weChatApplet/getWXEncKey',
-            url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
+            url: 'https://cloud.zgcfo.com/api/user/weChatApplet/getWXEncKey',
+            // url: 'http://cloud.yrl.fun/api/user/weChatApplet/getWXEncKey',
             data: {
               code: res.code
             },

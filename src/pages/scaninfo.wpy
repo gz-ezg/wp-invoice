@@ -238,6 +238,7 @@ export default class ScanInfo extends wepy.page {
     onShow(){
       this.scaning = 0
       this.$invoke('inputInfo', 'clear', '');
+      wx.showShareMenu()
       // wx.removeStorageSync('info')
     }
 }
