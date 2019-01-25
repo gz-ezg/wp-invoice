@@ -57,6 +57,7 @@
     </view>
     <view>
     </view>
+    <button open-type="share" style="width:60%;background-color:rgba(231,57,9,0.9);color:white">立即分享</button>
     <van-toast id="van-toast" />
   </view>
 </template>
@@ -240,6 +241,25 @@ export default class ScanInfo extends wepy.page {
       this.$invoke('inputInfo', 'clear', '');
       wx.showShareMenu()
       // wx.removeStorageSync('info')
+    }
+    onShareAppMessage(e){
+      // console.log(e)
+//       let shareObj = {
+//         success: function(res){
+// 　　　　　　// 转发成功之后的回调
+// 　　　　　　if(res.errMsg == 'shareAppMessage:ok'){
+// 　　　　　　}
+// 　　　　},
+// 　　　　fail: function(){
+// 　　　　　　// 转发失败之后的回调
+// 　　　　　　if(res.errMsg == 'shareAppMessage:fail cancel'){
+// 　　　　　　　　// 用户取消转发
+// 　　　　　　}else if(res.errMsg == 'shareAppMessage:fail'){
+// 　　　　　　　　// 转发失败，其中 detail message 为详细失败信息
+// 　　　　　　}
+// 　　　　}
+    //   }
+    // return shareObj
     }
 }
 </script>
